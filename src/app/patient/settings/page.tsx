@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,6 +20,7 @@ export default function PatientSettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [patient, setPatient] = useState<{ leanifiId?: string; treatmentStartDate?: string | Date | null; weight?: number | null; currentWeek?: number | null } | null>(null);
 
   const {
     register,
@@ -28,6 +29,24 @@ export default function PatientSettingsPage() {
   } = useForm<PasswordChangeForm>({
     resolver: zodResolver(passwordChangeSchema),
   });
+
+  // Load logged-in patient info (no mock data)
+  useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const resp = await fetch('/api/patient/me');
+        if (resp.ok) {
+          const data = await resp.json();
+          setPatient(data.patient || null);
+        } else {
+          setPatient(null);
+        }
+      } catch {
+        setPatient(null);
+      }
+    };
+    loadMe();
+  }, []);
 
   const onSubmit = async (data: PasswordChangeForm) => {
     setIsLoading(true);
@@ -164,25 +183,25 @@ export default function PatientSettingsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Leanifi ID
                 </label>
-                <p className="text-sm text-gray-900">LF001</p>
+                <p className="text-sm text-gray-900">{patient?.leanifiId || '-'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Treatment Start Date
                 </label>
-                <p className="text-sm text-gray-900">January 15, 2024</p>
+                <p className="text-sm text-gray-900">{patient?.treatmentStartDate ? new Date(patient.treatmentStartDate).toLocaleDateString() : '-'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Current Weight
                 </label>
-                <p className="text-sm text-gray-900">89 kg</p>
+                <p className="text-sm text-gray-900">{patient?.weight != null ? `${patient.weight} kg` : '-'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Treatment Week
                 </label>
-                <p className="text-sm text-gray-900">Week 3</p>
+                <p className="text-sm text-gray-900">{patient?.currentWeek ? `Week ${patient.currentWeek}` : '-'}</p>
               </div>
             </div>
           </div>

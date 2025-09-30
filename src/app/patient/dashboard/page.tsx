@@ -25,21 +25,16 @@ export default function PatientDashboard() {
 
   const fetchPatientData = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockData: PatientData = {
-        name: 'John Doe',
-        leanifiId: 'LF001',
-        weight: 89,
-        treatmentStartDate: '2024-01-15',
-        nextDoseDate: '2024-01-29',
-        currentWeek: 3,
-        lastDoseDate: '2024-01-22',
-        lastDoseStatus: 'taken',
-        weightChange: -2.5,
-      };
-      setPatientData(mockData);
+      const resp = await fetch('/api/patient/me');
+      if (resp.ok) {
+        const data = await resp.json();
+        setPatientData(data.patient || null);
+      } else {
+        setPatientData(null);
+      }
     } catch (error) {
       console.error('Error fetching patient data:', error);
+      setPatientData(null);
     } finally {
       setIsLoading(false);
     }
@@ -108,8 +103,10 @@ export default function PatientDashboard() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-[#014446]">Welcome, {patientData?.name}</h1>
-                <p className="text-gray-600">Leanifi ID: {patientData?.leanifiId}</p>
+                <h1 className="text-2xl font-bold text-[#014446]">Welcome{patientData?.name ? `, ${patientData.name}` : ''}</h1>
+                {patientData?.leanifiId && (
+                  <p className="text-gray-600">Leanifi ID: {patientData.leanifiId}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -144,24 +141,29 @@ export default function PatientDashboard() {
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
-            {getStatusIcon(patientData?.lastDoseStatus || 'pending')}
-            <div>
-              <p className="text-gray-600">
-                {patientData?.lastDoseStatus === 'taken' 
-                  ? `Last dose taken on ${patientData?.lastDoseDate ? new Date(patientData.lastDoseDate).toLocaleDateString() : 'N/A'}`
-                  : patientData?.lastDoseStatus === 'missed'
-                  ? 'You missed your last scheduled dose'
-                  : 'Your next dose is due soon'
-                }
-              </p>
-              {patientData?.nextDoseDate && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Next dose: {new Date(patientData.nextDoseDate).toLocaleDateString()}
+          {patientData ? (
+            <div className="flex items-center space-x-4">
+              {getStatusIcon(patientData?.lastDoseStatus || 'pending')}
+              <div>
+                <p className="text-gray-600">
+                  {patientData?.lastDoseStatus === 'taken' 
+                    ? `Last dose taken on ${patientData?.lastDoseDate ? new Date(patientData.lastDoseDate).toLocaleDateString() : 'N/A'}`
+                    : patientData?.lastDoseStatus === 'missed'
+                    ? 'You missed your last scheduled dose'
+                    : 'Your next dose is due soon'}
                 </p>
-              )}
+                {patientData?.nextDoseDate && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Next dose: {new Date(patientData.nextDoseDate).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              No dose data yet. Log your first dose to see your status here.
+            </div>
+          )}
 
           <div className="mt-6">
             <button
@@ -182,7 +184,7 @@ export default function PatientDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Treatment Week</p>
-                <p className="text-2xl font-bold text-gray-900">{patientData?.currentWeek}</p>
+                <p className="text-2xl font-bold text-gray-900">{patientData?.currentWeek ?? '-'}</p>
               </div>
             </div>
           </div>
@@ -196,7 +198,7 @@ export default function PatientDashboard() {
                 <p className="text-sm font-medium text-gray-600">Weight Change</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {patientData?.weightChange && patientData.weightChange > 0 ? '+' : ''}
-                  {patientData?.weightChange}kg
+                  {patientData?.weightChange ?? '-'}{patientData ? 'kg' : ''}
                 </p>
               </div>
             </div>
@@ -209,7 +211,7 @@ export default function PatientDashboard() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Current Weight</p>
-                <p className="text-2xl font-bold text-gray-900">{patientData?.weight}kg</p>
+                <p className="text-2xl font-bold text-gray-900">{patientData?.weight ?? '-'}{patientData ? 'kg' : ''}</p>
               </div>
             </div>
           </div>
