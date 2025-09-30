@@ -11,6 +11,20 @@ interface DashboardStats {
   overdueInjections: number;
 }
 
+interface Patient {
+  id: string;
+  leanifiId: string;
+  name: string;
+  age: number;
+  gender: string;
+  weight: number;
+  treatmentStartDate: string;
+  isActive: boolean;
+  allergies?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
@@ -27,15 +41,34 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      // TODO: Replace with actual API calls
+      // Fetch patients data
+      const patientsResponse = await fetch('/api/admin/patients');
+      if (patientsResponse.ok) {
+        const patientsData = await patientsResponse.json();
+        const patients = patientsData.patients || [];
+        
+        setStats({
+          totalPatients: patients.length,
+          activePatients: patients.filter((p: Patient) => p.isActive).length,
+          missedDoses: 0, // TODO: Calculate from doses data
+          overdueInjections: 0, // TODO: Calculate from doses data
+        });
+      } else {
+        setStats({
+          totalPatients: 0,
+          activePatients: 0,
+          missedDoses: 0,
+          overdueInjections: 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
       setStats({
         totalPatients: 0,
         activePatients: 0,
         missedDoses: 0,
         overdueInjections: 0,
       });
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
     } finally {
       setIsLoading(false);
     }

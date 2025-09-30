@@ -3,6 +3,55 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { hashPassword, verifyToken, getTokenFromCookies } from '@/lib/auth';
 
+export async function GET(request: NextRequest) {
+  try {
+    await connectDB();
+    
+    // Verify admin authentication
+    const token = getTokenFromCookies(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role?.toLowerCase() !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    // Fetch all patients
+    const patients = await User.find({ role: 'patient' }).select('-password');
+    
+    return NextResponse.json({
+      success: true,
+      patients: patients.map(patient => ({
+        id: patient._id,
+        leanifiId: patient.leanifiId,
+        name: patient.name,
+        age: patient.age,
+        gender: patient.gender,
+        weight: patient.weight,
+        treatmentStartDate: patient.treatmentStartDate,
+        allergies: patient.allergies,
+        isActive: patient.isActive,
+        createdAt: patient.createdAt,
+        updatedAt: patient.updatedAt
+      }))
+    });
+  } catch (error) {
+    console.error('Fetch patients error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     await connectDB();

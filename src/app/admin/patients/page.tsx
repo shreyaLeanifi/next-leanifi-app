@@ -11,9 +11,10 @@ interface Patient {
   gender: string;
   weight: number;
   treatmentStartDate: string;
-  status: 'active' | 'inactive';
-  lastDose?: string;
-  nextDose?: string;
+  isActive: boolean;
+  allergies?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function PatientsPage() {
@@ -25,12 +26,29 @@ export default function PatientsPage() {
     fetchPatients();
   }, []);
 
+  // Refresh patients list when returning from new patient page
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchPatients();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   const fetchPatients = async () => {
     try {
-      // TODO: Replace with actual API call
-      setPatients([]);
+      const response = await fetch('/api/admin/patients');
+      if (response.ok) {
+        const data = await response.json();
+        setPatients(data.patients || []);
+      } else {
+        console.error('Failed to fetch patients');
+        setPatients([]);
+      }
     } catch (error) {
       console.error('Error fetching patients:', error);
+      setPatients([]);
     } finally {
       setIsLoading(false);
     }
@@ -170,18 +188,18 @@ export default function PatientsPage() {
                         {new Date(patient.treatmentStartDate).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {patient.lastDose ? new Date(patient.lastDose).toLocaleDateString() : 'N/A'}
+                        N/A
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {patient.nextDose ? new Date(patient.nextDose).toLocaleDateString() : 'N/A'}
+                        N/A
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          patient.status === 'active'
+                          patient.isActive
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {patient.status}
+                          {patient.isActive ? 'active' : 'inactive'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
