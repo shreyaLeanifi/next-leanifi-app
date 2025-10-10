@@ -11,7 +11,7 @@ const patientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   age: z.number().min(1, 'Age must be at least 1').max(120, 'Age must be less than 120'),
   gender: z.enum(['male', 'female', 'other'], {
-    required_error: 'Please select a gender',
+    message: 'Please select a gender',
   }),
   weight: z.number().min(1, 'Weight must be at least 1kg'),
   treatmentStartDate: z.string().min(1, 'Treatment start date is required'),
@@ -51,7 +51,7 @@ export default function NewPatientPage() {
         const result = await response.json();
         setError(result.error || 'Failed to create patient');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

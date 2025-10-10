@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Users, Activity, AlertTriangle, Calendar } from 'lucide-react';
 
 interface DashboardStats {

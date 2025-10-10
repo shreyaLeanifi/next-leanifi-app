@@ -8,7 +8,7 @@ import { z } from 'zod';
 const missedDoseSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   missedReason: z.enum(['forgot', 'unwell', 'no_supply', 'other'], {
-    required_error: 'Please select a reason',
+    message: 'Please select a reason',
   }),
   missedReasonNotes: z.string().optional(),
 });
@@ -63,7 +63,7 @@ export default function MissedDosePage() {
         const result = await response.json();
         setError(result.error || 'Failed to report missed dose');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

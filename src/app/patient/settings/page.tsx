@@ -73,7 +73,7 @@ export default function PatientSettingsPage() {
         const result = await response.json();
         setError(result.error || 'Failed to change password');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

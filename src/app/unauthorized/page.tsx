@@ -14,7 +14,7 @@ export default function UnauthorizedPage() {
           </svg>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Access Denied</h1>
-        <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
+        <p className="text-gray-600 mb-6">You don&apos;t have permission to access this page.</p>
         <button
           onClick={() => router.push('/login')}
           className="bg-[#44BC95] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#3aa882] transition-colors"

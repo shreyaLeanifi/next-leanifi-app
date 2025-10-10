@@ -5,8 +5,8 @@ export interface IAuditLog extends Document {
   action: string;
   resource: string;
   resourceId: string;
-  oldValues?: any;
-  newValues?: any;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   timestamp: Date;

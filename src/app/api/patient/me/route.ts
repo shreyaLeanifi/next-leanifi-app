@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     // Latest dose if any (patient-logged or clinician)
     const latestDose = await Dose.findOne({ patientId: user._id })
       .sort({ date: -1, createdAt: -1 })
-      .lean();
+      .lean() as { date: Date; status: string } | null;
 
     const response = {
       id: user._id,

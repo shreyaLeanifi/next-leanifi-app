@@ -135,7 +135,7 @@ export default function PatientDashboard() {
         {/* Today's Dose Status */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Today's Dose Status</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Dose Status</h2>
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(patientData?.lastDoseStatus || 'pending')}`}>
               {getStatusText(patientData?.lastDoseStatus || 'pending')}
             </div>
@@ -226,7 +226,7 @@ export default function PatientDashboard() {
                 onClick={() => window.location.href = '/patient/log-dose'}
                 className="w-full bg-[#44BC95] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#3aa882] transition-colors"
               >
-                Log Today's Dose
+                Log Today&apos;s Dose
               </button>
               <button
                 onClick={() => window.location.href = '/patient/missed-dose'}

@@ -9,10 +9,10 @@ const doseLogSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   time: z.string().min(1, 'Time is required'),
   dosage: z.enum(['0.25mg', '0.5mg', '1mg', '1.7mg', '2.4mg'], {
-    required_error: 'Please select a dosage',
+    message: 'Please select a dosage',
   }),
   injectionSite: z.enum(['left_arm', 'right_arm', 'left_thigh', 'right_thigh', 'left_abdomen', 'right_abdomen'], {
-    required_error: 'Please select an injection site',
+    message: 'Please select an injection site',
   }),
   sideEffects: z.array(z.string()).optional(),
   sideEffectsNotes: z.string().optional(),
@@ -86,7 +86,7 @@ export default function LogDosePage() {
         const result = await response.json();
         setError(result.error || 'Failed to log dose');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

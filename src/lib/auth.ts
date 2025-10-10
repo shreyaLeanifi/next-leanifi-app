@@ -26,7 +26,7 @@ export async function verifyToken(token: string): Promise<{ userId: string; role
     const { payload } = await jwtVerify(token, secret);
     const decoded = payload as { userId: string; role: string };
     return decoded;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

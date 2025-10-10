@@ -42,7 +42,7 @@ export default function ClinicianLogDosePage() {
         const data = await resp.json();
         setError(data.error || 'Failed to log dose');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to log dose');
     } finally {
       setIsLoading(false);
