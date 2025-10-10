@@ -50,7 +50,7 @@ A comprehensive Electronic Medication Administration Record (eMAR) system for tr
 3. **Environment Variables**
    Create a `.env.local` file in the root directory:
    ```env
-   MONGODB_URI=mongodb+srv://sully_db_user:9NwIWAGTUxpeO2GZ@leanify.bbaudrh.mongodb.net/?retryWrites=true&w=majority&appName=leanify
+   MONGODB_URI=mongoUrl
    JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your-nextauth-secret-key
