@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Image from 'next/image';
 
 const loginSchema = z.object({
   leanifiId: z.string().min(1, 'Leanifi ID is required'),
@@ -17,7 +16,17 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [logoError, setLogoError] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Preload the logo image to ensure it's available
+    const img = new Image();
+    img.src = '/leanifi-logo.png';
+    img.onerror = () => {
+      setLogoError(true);
+    };
+  }, []);
 
   const {
     register,
@@ -78,15 +87,19 @@ export default function LoginPage() {
         <div className="text-center mb-4">
           <div className="flex items-center justify-center mx-auto mb-0">
             <div className="relative w-32 h-32 transform hover:scale-105 transition-transform duration-300">
-              <Image
-                src="/leanifi-logo.png"
-                alt="Leanifi Logo"
-                width={128}
-                height={128}
-                className="w-full h-full object-contain"
-                priority
-                unoptimized
-              />
+              {!logoError ? (
+                <img
+                  src="/leanifi-logo.png"
+                  alt="Leanifi Logo"
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+                  <span className="text-gray-400 text-xs">Logo</span>
+                </div>
+              )}
             </div>
           </div>
           <p className="text-gray-600 font-medium text-sm mb-2 -mt-2">eMAR System Login</p>
