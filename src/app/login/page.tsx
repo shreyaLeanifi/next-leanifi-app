@@ -74,18 +74,21 @@ export default function LoginPage() {
       </div>
       
       <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-md relative z-10 animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#44BC95] to-[#3aa882] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="text-center mb-4">
+          <div className="flex items-center justify-center mx-auto mb-0">
+            <div className="relative w-32 h-32 transform hover:scale-105 transition-transform duration-300">
+              <img
+                src="/leanifi-logo.png"
+                alt="Leanifi Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent mb-2">Leanifi</h1>
-          <p className="text-gray-600 font-medium">eMAR System Login</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="h-1 w-12 bg-gradient-to-r from-[#44BC95] to-[#3aa882] rounded-full"></div>
-            <div className="h-1 w-2 bg-[#44BC95] rounded-full"></div>
-            <div className="h-1 w-12 bg-gradient-to-l from-[#44BC95] to-[#3aa882] rounded-full"></div>
+          <p className="text-gray-600 font-medium text-sm mb-2 -mt-2">eMAR System Login</p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-[#44BC95] to-[#44BC95] rounded-full"></div>
+            <div className="h-1.5 w-1.5 bg-[#44BC95] rounded-full"></div>
+            <div className="h-0.5 w-16 bg-gradient-to-l from-transparent via-[#44BC95] to-[#44BC95] rounded-full"></div>
           </div>
         </div>
 

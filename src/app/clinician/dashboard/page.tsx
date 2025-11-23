@@ -40,13 +40,15 @@ export default function ClinicianDashboard() {
       <header className="bg-white shadow-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#44BC95] to-[#3aa882] rounded-xl flex items-center justify-center shadow-lg">
-                <Syringe className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">Clinician Dashboard</h1>
-                <p className="text-xs text-gray-500 font-medium">Patient Care Management</p>
+            <div className="flex items-center gap-3">
+              <img
+                src="/leanifi-logo.png"
+                alt="Leanifi Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <div className="ml-2">
+                <h1 className="text-sm font-medium bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">Clinician Dashboard</h1>
+                <p className="text-xs text-gray-500">Patient Care Management</p>
               </div>
             </div>
             <button 

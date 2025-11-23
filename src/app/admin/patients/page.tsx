@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Plus, Eye, Edit, Trash2, Users } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react';
 
 interface Patient {
   id: string;
@@ -112,12 +112,14 @@ export default function PatientsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </button>
-              <div className="w-12 h-12 bg-gradient-to-br from-[#44BC95] to-[#3aa882] rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">Patient Management</h1>
-                <p className="text-xs text-gray-500 font-medium">Manage all patient records</p>
+              <img
+                src="/leanifi-logo.png"
+                alt="Leanifi Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <div className="ml-2">
+                <h1 className="text-sm font-medium bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">Patient Management</h1>
+                <p className="text-xs text-gray-500">Manage all patient records</p>
               </div>
             </div>
             <button

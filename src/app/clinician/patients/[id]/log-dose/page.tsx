@@ -155,12 +155,12 @@ export default function ClinicianLogDosePage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Side Effects</label>
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">Common Side Effects:</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                {['Nausea','Vomiting','Diarrhea','Constipation','Headache','Dizziness','Injection site reaction','Fatigue','Other'].map(opt => (
-                  <label key={opt} className="flex items-center">
-                    <input type="checkbox" name="sideEffects" value={opt} className="mr-2" /> {opt}
-                  </label>
-                ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+              {['Nausea','Vomiting','Diarrhea','Constipation','Headache','Dizziness','Injection site reaction','Fatigue','Other'].map(opt => (
+                <label key={opt} className="flex items-center">
+                  <input type="checkbox" name="sideEffects" value={opt} className="mr-2" /> {opt}
+                </label>
+              ))}
               </div>
             </div>
             <div className="border-2 border-red-300 bg-red-50 rounded-lg p-4">

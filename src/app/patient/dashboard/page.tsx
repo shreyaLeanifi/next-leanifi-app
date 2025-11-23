@@ -98,18 +98,18 @@ export default function PatientDashboard() {
       <header className="bg-white shadow-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#44BC95] to-[#3aa882] rounded-xl flex items-center justify-center shadow-lg">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">
+            <div className="flex items-center gap-3">
+              <img
+                src="/leanifi-logo.png"
+                alt="Leanifi Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <div className="ml-2">
+                <h1 className="text-sm font-medium bg-gradient-to-r from-[#014446] to-[#44BC95] bg-clip-text text-transparent">
                   Welcome{patientData?.name ? `, ${patientData.name}` : ''}
                 </h1>
                 {patientData?.leanifiId && (
-                  <p className="text-sm text-gray-600 font-medium">Leanifi ID: {patientData.leanifiId}</p>
+                  <p className="text-xs text-gray-600">Leanifi ID: {patientData.leanifiId}</p>
                 )}
               </div>
             </div>
