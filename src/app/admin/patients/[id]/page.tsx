@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Calendar, User, Weight, Activity } from 'lucide-react';
 
@@ -41,14 +41,9 @@ export default function PatientViewPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (patientId) {
-      fetchPatientData();
-      fetchDoses();
-    }
-  }, [patientId]);
-
-  const fetchPatientData = async () => {
+  const fetchPatientData = useCallback(async () => {
+    if (!patientId) return;
+    
     try {
       const response = await fetch(`/api/admin/patients/${patientId}`);
       if (response.ok) {
@@ -61,24 +56,33 @@ export default function PatientViewPage() {
       } else {
         setError('Failed to load patient data');
       }
-    } catch (err) {
+    } catch {
       setError('Error loading patient data');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [patientId]);
 
-  const fetchDoses = async () => {
+  const fetchDoses = useCallback(async () => {
+    if (!patientId) return;
+    
     try {
       const response = await fetch(`/api/clinician/doses?patientId=${patientId}`);
       if (response.ok) {
         const data = await response.json();
         setDoses(data.doses || []);
       }
-    } catch (err) {
-      console.error('Error fetching doses:', err);
+    } catch {
+      console.error('Error fetching doses');
     }
-  };
+  }, [patientId]);
+
+  useEffect(() => {
+    if (patientId) {
+      fetchPatientData();
+      fetchDoses();
+    }
+  }, [patientId, fetchPatientData, fetchDoses]);
 
   if (isLoading) {
     return (

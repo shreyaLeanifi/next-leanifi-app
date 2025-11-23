@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function ClinicianLogDosePage() {
   const params = useParams();
@@ -12,21 +12,23 @@ export default function ClinicianLogDosePage() {
   const [previousDoses, setPreviousDoses] = useState<Array<{ date: string; medicationName?: string; notes?: string }>>([]);
   const [showPreviousNotes, setShowPreviousNotes] = useState(false);
 
-  useEffect(() => {
-    fetchPreviousDoses();
-  }, [patientId]);
-
-  const fetchPreviousDoses = async () => {
+  const fetchPreviousDoses = useCallback(async () => {
+    if (!patientId) return;
+    
     try {
       const resp = await fetch(`/api/clinician/doses?patientId=${patientId}`);
       if (resp.ok) {
         const data = await resp.json();
         setPreviousDoses(data.doses || []);
       }
-    } catch (err) {
-      console.error('Error fetching previous doses:', err);
+    } catch {
+      console.error('Error fetching previous doses');
     }
-  };
+  }, [patientId]);
+
+  useEffect(() => {
+    fetchPreviousDoses();
+  }, [fetchPreviousDoses]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

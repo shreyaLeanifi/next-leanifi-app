@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,13 +41,9 @@ export default function EditPatientPage() {
     resolver: zodResolver(patientSchema),
   });
 
-  useEffect(() => {
-    if (patientId) {
-      fetchPatientData();
-    }
-  }, [patientId]);
-
-  const fetchPatientData = async () => {
+  const fetchPatientData = useCallback(async () => {
+    if (!patientId) return;
+    
     try {
       const response = await fetch(`/api/admin/patients/${patientId}`);
       if (response.ok) {
@@ -75,12 +71,18 @@ export default function EditPatientPage() {
       } else {
         setError('Failed to load patient data');
       }
-    } catch (err) {
+    } catch {
       setError('Error loading patient data');
     } finally {
       setIsFetching(false);
     }
-  };
+  }, [patientId, reset]);
+
+  useEffect(() => {
+    if (patientId) {
+      fetchPatientData();
+    }
+  }, [patientId, fetchPatientData]);
 
   const onSubmit = async (data: PatientForm) => {
     setIsLoading(true);

@@ -113,7 +113,22 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     // Create patient
-    const patientData: any = {
+    const patientData: {
+      leanifiId: string;
+      password: string;
+      role: string;
+      name: string;
+      age: number;
+      gender: string;
+      weight: number;
+      treatmentStartDate: Date;
+      isActive: boolean;
+      allergies?: string;
+      medicalHistory?: string;
+      familyHistory?: string;
+      medications?: string;
+      socialHistory?: string;
+    } = {
       leanifiId,
       password: hashedPassword,
       role: 'patient',
