@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,22 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    // Preload the logo image to ensure it's available on initial load
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = '/leanifi-logo.png';
+    document.head.appendChild(link);
+
+    return () => {
+      // Cleanup
+      if (document.head.contains(link)) {
+        document.head.removeChild(link);
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -81,6 +97,8 @@ export default function LoginPage() {
                 src="/leanifi-logo.png"
                 alt="Leanifi Logo"
                 className="w-full h-full object-contain"
+                loading="eager"
+                fetchPriority="high"
               />
             </div>
           </div>
