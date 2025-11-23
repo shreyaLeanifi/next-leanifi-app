@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 
 const loginSchema = z.object({
   leanifiId: z.string().min(1, 'Leanifi ID is required'),
@@ -77,10 +78,14 @@ export default function LoginPage() {
         <div className="text-center mb-4">
           <div className="flex items-center justify-center mx-auto mb-0">
             <div className="relative w-32 h-32 transform hover:scale-105 transition-transform duration-300">
-              <img
+              <Image
                 src="/leanifi-logo.png"
                 alt="Leanifi Logo"
+                width={128}
+                height={128}
                 className="w-full h-full object-contain"
+                priority
+                unoptimized
               />
             </div>
           </div>
