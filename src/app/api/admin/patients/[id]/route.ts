@@ -5,7 +5,7 @@ import { verifyToken, getTokenFromCookies } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -27,7 +27,8 @@ export async function GET(
       );
     }
 
-    const patient = await User.findById(params.id).select('-password');
+    const { id } = await params;
+    const patient = await User.findById(id).select('-password');
     
     if (!patient || patient.role !== 'patient') {
       return NextResponse.json(
@@ -67,7 +68,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -89,6 +90,7 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
     const {
       name,
       age,
@@ -103,7 +105,7 @@ export async function PUT(
       isActive,
     } = await request.json();
 
-    const patient = await User.findById(params.id);
+    const patient = await User.findById(id);
     
     if (!patient || patient.role !== 'patient') {
       return NextResponse.json(
@@ -156,7 +158,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -178,7 +180,8 @@ export async function DELETE(
       );
     }
 
-    const patient = await User.findById(params.id);
+    const { id } = await params;
+    const patient = await User.findById(id);
     
     if (!patient || patient.role !== 'patient') {
       return NextResponse.json(
@@ -187,7 +190,7 @@ export async function DELETE(
       );
     }
 
-    await User.findByIdAndDelete(params.id);
+    await User.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,
