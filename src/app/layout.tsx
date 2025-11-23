@@ -15,13 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Leanifi - eMAR System",
   description: "Leanifi Electronic Medication Administration Record System",
-  icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png' },
-    ],
-    shortcut: '/icon.png',
-    apple: '/icon.png',
-  },
 };
 
 export default function RootLayout({
