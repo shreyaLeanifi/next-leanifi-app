@@ -10,6 +10,10 @@ export interface IUser extends Document {
   weight?: number;
   treatmentStartDate?: Date;
   allergies?: string;
+  medicalHistory?: string;
+  familyHistory?: string;
+  medications?: string;
+  socialHistory?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -53,6 +57,22 @@ const UserSchema = new Schema<IUser>({
     type: Date
   },
   allergies: {
+    type: String,
+    trim: true
+  },
+  medicalHistory: {
+    type: String,
+    trim: true
+  },
+  familyHistory: {
+    type: String,
+    trim: true
+  },
+  medications: {
+    type: String,
+    trim: true
+  },
+  socialHistory: {
     type: String,
     trim: true
   },

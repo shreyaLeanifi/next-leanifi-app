@@ -21,6 +21,11 @@ export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; patient: Patient | null }>({
+    isOpen: false,
+    patient: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchPatients();
@@ -58,6 +63,39 @@ export default function PatientsPage() {
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.leanifiId.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteClick = (patient: Patient) => {
+    setDeleteModal({ isOpen: true, patient });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.patient) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/admin/patients/${deleteModal.patient.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove patient from list
+        setPatients(patients.filter(p => p.id !== deleteModal.patient?.id));
+        setDeleteModal({ isOpen: false, patient: null });
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete patient');
+      }
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      alert('An error occurred while deleting the patient');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, patient: null });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -217,11 +255,7 @@ export default function PatientsPage() {
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => {
-                              if (confirm('Are you sure you want to delete this patient?')) {
-                                // Handle delete
-                              }
-                            }}
+                            onClick={() => handleDeleteClick(patient)}
                             className="text-red-600 hover:text-red-800"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -236,6 +270,42 @@ export default function PatientsPage() {
           </div>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && deleteModal.patient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                  <Trash2 className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete Patient</h3>
+              </div>
+              <p className="text-gray-700 mb-6">
+                Are you sure you want to delete <strong>{deleteModal.patient.name}</strong> (Leanifi ID: {deleteModal.patient.leanifiId})? 
+                This action cannot be undone and will permanently remove all patient data.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={handleDeleteCancel}
+                  disabled={isDeleting}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Patient'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

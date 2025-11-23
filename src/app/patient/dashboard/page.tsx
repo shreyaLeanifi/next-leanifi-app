@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Calendar, Activity, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
 interface PatientData {
@@ -16,6 +17,7 @@ interface PatientData {
 }
 
 export default function PatientDashboard() {
+  const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -223,22 +225,22 @@ export default function PatientDashboard() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button
-                onClick={() => window.location.href = '/patient/log-dose'}
+                onClick={() => router.push('/patient/log-dose')}
                 className="w-full bg-[#44BC95] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#3aa882] transition-colors"
               >
                 Log Today&apos;s Dose
               </button>
               <button
-                onClick={() => window.location.href = '/patient/missed-dose'}
+                onClick={() => router.push('/patient/missed-dose')}
                 className="w-full bg-white text-red-600 py-3 px-4 rounded-lg font-medium border border-red-600 hover:bg-red-50 transition-colors"
               >
                 Report Missed Dose
               </button>
               <button
-                onClick={() => window.location.href = '/patient/history'}
+                onClick={() => router.push('/patient/settings')}
                 className="w-full bg-white text-[#014446] py-3 px-4 rounded-lg font-medium border border-[#014446] hover:bg-[#014446] hover:text-white transition-colors"
               >
-                View Dose History
+                View Settings
               </button>
             </div>
           </div>

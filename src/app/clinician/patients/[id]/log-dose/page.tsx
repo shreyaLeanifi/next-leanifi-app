@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ClinicianLogDosePage() {
   const params = useParams();
@@ -9,6 +9,24 @@ export default function ClinicianLogDosePage() {
   const patientId = params?.id as string;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [previousDoses, setPreviousDoses] = useState<Array<{ date: string; medicationName?: string; notes?: string }>>([]);
+  const [showPreviousNotes, setShowPreviousNotes] = useState(false);
+
+  useEffect(() => {
+    fetchPreviousDoses();
+  }, [patientId]);
+
+  const fetchPreviousDoses = async () => {
+    try {
+      const resp = await fetch(`/api/clinician/doses?patientId=${patientId}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setPreviousDoses(data.doses || []);
+      }
+    } catch (err) {
+      console.error('Error fetching previous doses:', err);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,6 +41,7 @@ export default function ClinicianLogDosePage() {
       dosage: formData.get('dosage'),
       injectionSite: formData.get('injectionSite'),
       status: formData.get('status'),
+      medicationName: formData.get('medicationName'),
       batchNumber: formData.get('batchNumber'),
       clinicianInitials: formData.get('clinicianInitials'),
       sideEffects: Array.from(formData.getAll('sideEffects')),
@@ -73,6 +92,18 @@ export default function ClinicianLogDosePage() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Medication Name *</label>
+            <input 
+              name="medicationName" 
+              type="text" 
+              required 
+              defaultValue="Semaglutide"
+              className="w-full px-4 py-3 border rounded-lg"
+              placeholder="e.g., Semaglutide"
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Dosage *</label>
@@ -120,12 +151,25 @@ export default function ClinicianLogDosePage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Side Effects</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-              {['Nausea','Vomiting','Diarrhea','Constipation','Headache','Dizziness','Injection site reaction','Fatigue','Other'].map(opt => (
-                <label key={opt} className="flex items-center">
-                  <input type="checkbox" name="sideEffects" value={opt} className="mr-2" /> {opt}
-                </label>
-              ))}
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-3">Common Side Effects:</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                {['Nausea','Vomiting','Diarrhea','Constipation','Headache','Dizziness','Injection site reaction','Fatigue','Other'].map(opt => (
+                  <label key={opt} className="flex items-center">
+                    <input type="checkbox" name="sideEffects" value={opt} className="mr-2" /> {opt}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="border-2 border-red-300 bg-red-50 rounded-lg p-4">
+              <p className="text-sm font-semibold text-red-800 mb-3">Rare/Serious Side Effects:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                {['Pancreatitis', 'Serious/Severe Allergic Reactions (anaphylactic reactions)', 'Breathing problems', 'Swelling of face and throat', 'Wheezing', 'Tachycardia', 'Pale and cold skin'].map(opt => (
+                  <label key={opt} className="flex items-center">
+                    <input type="checkbox" name="sideEffects" value={opt} className="mr-2" /> {opt}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -135,7 +179,39 @@ export default function ClinicianLogDosePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Notes & Comments</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">Notes & Comments</label>
+              <button
+                type="button"
+                onClick={() => setShowPreviousNotes(!showPreviousNotes)}
+                className="text-sm text-[#44BC95] hover:text-[#3aa882]"
+              >
+                {showPreviousNotes ? 'Hide' : 'View'} Previous Notes
+              </button>
+            </div>
+            {showPreviousNotes && previousDoses.length > 0 && (
+              <div className="mb-4 bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Previous Notes:</p>
+                {previousDoses.map((dose, idx) => (
+                  <div key={idx} className="mb-3 pb-3 border-b border-gray-200 last:border-0">
+                    <p className="text-xs text-gray-500 mb-1">
+                      {new Date(dose.date).toLocaleDateString()} - {dose.medicationName || 'N/A'}
+                    </p>
+                    {dose.notes && (
+                      <p className="text-sm text-gray-700">{dose.notes}</p>
+                    )}
+                    {!dose.notes && (
+                      <p className="text-sm text-gray-400 italic">No notes recorded</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {showPreviousNotes && previousDoses.length === 0 && (
+              <div className="mb-4 bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-500">No previous notes found</p>
+              </div>
+            )}
             <textarea name="notes" rows={3} className="w-full px-4 py-3 border rounded-lg" />
           </div>
 

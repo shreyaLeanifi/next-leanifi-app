@@ -221,18 +221,37 @@ export default function LogDosePage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Side Effects (Select all that apply)
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {sideEffectOptions.map((sideEffect) => (
-                  <label key={sideEffect} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={watchedSideEffects.includes(sideEffect)}
-                      onChange={(e) => handleSideEffectChange(sideEffect, e.target.checked)}
-                      className="h-4 w-4 text-[#44BC95] focus:ring-[#44BC95] border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{sideEffect}</span>
-                  </label>
-                ))}
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-3">Common Side Effects:</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {sideEffectOptions.map((sideEffect) => (
+                    <label key={sideEffect} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={watchedSideEffects.includes(sideEffect)}
+                        onChange={(e) => handleSideEffectChange(sideEffect, e.target.checked)}
+                        className="h-4 w-4 text-[#44BC95] focus:ring-[#44BC95] border-gray-300 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{sideEffect}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="border-2 border-red-300 bg-red-50 rounded-lg p-4">
+                <p className="text-sm font-semibold text-red-800 mb-3">Rare/Serious Side Effects:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {['Pancreatitis', 'Serious/Severe Allergic Reactions (anaphylactic reactions)', 'Breathing problems', 'Swelling of face and throat', 'Wheezing', 'Tachycardia', 'Pale and cold skin'].map(opt => (
+                    <label key={opt} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={watchedSideEffects.includes(opt)}
+                        onChange={(e) => handleSideEffectChange(opt, e.target.checked)}
+                        className="h-4 w-4 text-[#44BC95] focus:ring-[#44BC95] border-gray-300 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
 

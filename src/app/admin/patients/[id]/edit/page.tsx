@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const patientSchema = z.object({
-  leanifiId: z.string().min(1, 'Leanifi ID is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
   name: z.string().min(1, 'Name is required'),
   age: z.number().min(1, 'Age must be at least 1').max(120, 'Age must be less than 120'),
   gender: z.enum(['male', 'female', 'other'], {
@@ -20,29 +19,76 @@ const patientSchema = z.object({
   familyHistory: z.string().optional(),
   medications: z.string().optional(),
   socialHistory: z.string().optional(),
+  isActive: z.boolean(),
 });
 
 type PatientForm = z.infer<typeof patientSchema>;
 
-export default function NewPatientPage() {
+export default function EditPatientPage() {
+  const params = useParams();
+  const router = useRouter();
+  const patientId = params?.id as string;
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState('');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<PatientForm>({
     resolver: zodResolver(patientSchema),
   });
+
+  useEffect(() => {
+    if (patientId) {
+      fetchPatientData();
+    }
+  }, [patientId]);
+
+  const fetchPatientData = async () => {
+    try {
+      const response = await fetch(`/api/admin/patients/${patientId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.patient) {
+          const patient = data.patient;
+          reset({
+            name: patient.name,
+            age: patient.age,
+            gender: patient.gender,
+            weight: patient.weight,
+            treatmentStartDate: patient.treatmentStartDate
+              ? new Date(patient.treatmentStartDate).toISOString().split('T')[0]
+              : '',
+            allergies: patient.allergies || '',
+            medicalHistory: patient.medicalHistory || '',
+            familyHistory: patient.familyHistory || '',
+            medications: patient.medications || '',
+            socialHistory: patient.socialHistory || '',
+            isActive: patient.isActive ?? true,
+          });
+        } else {
+          setError('Patient not found');
+        }
+      } else {
+        setError('Failed to load patient data');
+      }
+    } catch (err) {
+      setError('Error loading patient data');
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const onSubmit = async (data: PatientForm) => {
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch('/api/admin/patients', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/patients/${patientId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -50,10 +96,10 @@ export default function NewPatientPage() {
       });
 
       if (response.ok) {
-        window.location.href = '/admin/patients';
+        router.push(`/admin/patients/${patientId}`);
       } else {
         const result = await response.json();
-        setError(result.error || 'Failed to create patient');
+        setError(result.error || 'Failed to update patient');
       }
     } catch {
       setError('An error occurred. Please try again.');
@@ -61,6 +107,17 @@ export default function NewPatientPage() {
       setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#44BC95] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading patient data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,12 +127,12 @@ export default function NewPatientPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <button
-                onClick={() => window.location.href = '/admin/patients'}
+                onClick={() => router.push(`/admin/patients/${patientId}`)}
                 className="mr-4 text-gray-600 hover:text-gray-900"
               >
-                ← Back to Patients
+                ← Back to Patient
               </button>
-              <h1 className="text-2xl font-bold text-[#014446]">Add New Patient</h1>
+              <h1 className="text-2xl font-bold text-[#014446]">Edit Patient</h1>
             </div>
           </div>
         </div>
@@ -85,40 +142,6 @@ export default function NewPatientPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="leanifiId" className="block text-sm font-medium text-gray-700 mb-2">
-                  Leanifi ID *
-                </label>
-                <input
-                  {...register('leanifiId')}
-                  type="text"
-                  id="leanifiId"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#44BC95] focus:border-transparent"
-                  placeholder="e.g., LF001"
-                />
-                {errors.leanifiId && (
-                  <p className="mt-1 text-sm text-red-600">{errors.leanifiId.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Initial Password *
-                </label>
-                <input
-                  {...register('password')}
-                  type="password"
-                  id="password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#44BC95] focus:border-transparent"
-                  placeholder="Patient's initial password"
-                />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                )}
-              </div>
-            </div>
-
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
@@ -284,6 +307,17 @@ export default function NewPatientPage() {
               )}
             </div>
 
+            <div>
+              <label className="flex items-center">
+                <input
+                  {...register('isActive')}
+                  type="checkbox"
+                  className="h-4 w-4 text-[#44BC95] focus:ring-[#44BC95] border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-700">Active Patient</span>
+              </label>
+            </div>
+
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 {error}
@@ -293,7 +327,7 @@ export default function NewPatientPage() {
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => window.location.href = '/admin/patients'}
+                onClick={() => router.push(`/admin/patients/${patientId}`)}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
@@ -303,7 +337,7 @@ export default function NewPatientPage() {
                 disabled={isLoading}
                 className="px-6 py-3 bg-[#44BC95] text-white rounded-lg font-medium hover:bg-[#3aa882] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Creating Patient...' : 'Create Patient'}
+                {isLoading ? 'Updating Patient...' : 'Update Patient'}
               </button>
             </div>
           </form>
@@ -312,3 +346,5 @@ export default function NewPatientPage() {
     </div>
   );
 }
+
+

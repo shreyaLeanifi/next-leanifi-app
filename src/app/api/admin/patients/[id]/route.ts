@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { hashPassword, verifyToken, getTokenFromCookies } from '@/lib/auth';
+import { verifyToken, getTokenFromCookies } from '@/lib/auth';
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     await connectDB();
     
@@ -24,12 +27,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all patients
-    const patients = await User.find({ role: 'patient' }).select('-password');
+    const patient = await User.findById(params.id).select('-password');
     
+    if (!patient || patient.role !== 'patient') {
+      return NextResponse.json(
+        { error: 'Patient not found' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      patients: patients.map(patient => ({
+      patient: {
         id: patient._id.toString(),
         leanifiId: patient.leanifiId,
         name: patient.name,
@@ -45,10 +54,10 @@ export async function GET(request: NextRequest) {
         isActive: patient.isActive,
         createdAt: patient.createdAt,
         updatedAt: patient.updatedAt
-      }))
+      }
     });
   } catch (error) {
-    console.error('Fetch patients error:', error);
+    console.error('Get patient error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -56,7 +65,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     await connectDB();
     
@@ -78,8 +90,6 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      leanifiId,
-      password,
       name,
       age,
       gender,
@@ -90,56 +100,37 @@ export async function POST(request: NextRequest) {
       familyHistory,
       medications,
       socialHistory,
+      isActive,
     } = await request.json();
 
-    // Validate required fields
-    if (!leanifiId || !password || !name || !age || !gender || !weight || !treatmentStartDate) {
+    const patient = await User.findById(params.id);
+    
+    if (!patient || patient.role !== 'patient') {
       return NextResponse.json(
-        { error: 'All required fields must be provided' },
-        { status: 400 }
+        { error: 'Patient not found' },
+        { status: 404 }
       );
     }
 
-    // Check if Leanifi ID already exists
-    const existingUser = await User.findOne({ leanifiId });
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'Leanifi ID already exists' },
-        { status: 400 }
-      );
-    }
-
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Create patient
-    const patientData: any = {
-      leanifiId,
-      password: hashedPassword,
-      role: 'patient',
-      name,
-      age,
-      gender,
-      weight,
-      treatmentStartDate: new Date(treatmentStartDate),
-      isActive: true,
-    };
-
-    // Add optional fields (explicitly set even if empty to ensure they're saved to DB)
-    patientData.allergies = allergies ?? '';
-    patientData.medicalHistory = medicalHistory ?? '';
-    patientData.familyHistory = familyHistory ?? '';
-    patientData.medications = medications ?? '';
-    patientData.socialHistory = socialHistory ?? '';
-
-    const patient = new User(patientData);
+    // Update patient fields
+    if (name !== undefined) patient.name = name;
+    if (age !== undefined) patient.age = age;
+    if (gender !== undefined) patient.gender = gender;
+    if (weight !== undefined) patient.weight = weight;
+    if (treatmentStartDate !== undefined) patient.treatmentStartDate = new Date(treatmentStartDate);
+    if (allergies !== undefined) patient.allergies = allergies;
+    if (medicalHistory !== undefined) patient.medicalHistory = medicalHistory;
+    if (familyHistory !== undefined) patient.familyHistory = familyHistory;
+    if (medications !== undefined) patient.medications = medications;
+    if (socialHistory !== undefined) patient.socialHistory = socialHistory;
+    if (isActive !== undefined) patient.isActive = isActive;
 
     await patient.save();
 
     return NextResponse.json({
       success: true,
       patient: {
-        id: patient._id,
+        id: patient._id.toString(),
         leanifiId: patient.leanifiId,
         name: patient.name,
         age: patient.age,
@@ -151,13 +142,63 @@ export async function POST(request: NextRequest) {
         familyHistory: patient.familyHistory,
         medications: patient.medications,
         socialHistory: patient.socialHistory,
-      },
+        isActive: patient.isActive,
+      }
     });
   } catch (error) {
-    console.error('Create patient error:', error);
+    console.error('Update patient error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB();
+    
+    // Verify admin authentication
+    const token = getTokenFromCookies(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role?.toLowerCase() !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    const patient = await User.findById(params.id);
+    
+    if (!patient || patient.role !== 'patient') {
+      return NextResponse.json(
+        { error: 'Patient not found' },
+        { status: 404 }
+      );
+    }
+
+    await User.findByIdAndDelete(params.id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Patient deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete patient error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
